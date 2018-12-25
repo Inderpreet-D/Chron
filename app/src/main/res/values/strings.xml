@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Chron</string>
+    <string name="input1_hint">Name</string>
+    <string name="input2_hint">Phone</string>
+    <string name="input3_hint">Date</string>
+    <string name="add_text">Add</string>
+    <string name="choose_text">Choose</string>
+    <string name="name_digits">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
+    <string name="phone_digits">0123456789</string>
+    <string name="send_text">Send</string>
+</resources>

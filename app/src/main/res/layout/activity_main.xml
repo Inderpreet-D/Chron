@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical">
+
+    </ListView>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorTextBox">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:showDividers="none">
+
+            <EditText
+                android:id="@+id/nameInput"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:digits="@string/name_digits"
+                android:hint="@string/input1_hint"
+                android:importantForAutofill="no"
+                android:inputType="textCapWords|textPersonName"
+                tools:targetApi="o" />
+
+            <EditText
+                android:id="@+id/dateInput"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:focusable="false"
+                android:hint="@string/input3_hint"
+                android:importantForAutofill="no"
+                android:inputType="date"
+                android:onClick="onClickDate"
+                tools:targetApi="o" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/phoneInput"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:digits="@string/phone_digits"
+                android:ems="10"
+                android:hint="@string/input2_hint"
+                android:importantForAutofill="no"
+                android:inputType="phone"
+                tools:targetApi="o" />
+
+            <Button
+                android:id="@+id/chooseButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="1dp"
+                android:layout_weight="1"
+                android:background="@drawable/buttonshape"
+                android:elevation="0dp"
+                android:onClick="onClickChoose"
+                android:text="@string/choose_text" />
+
+            <Button
+                android:id="@+id/addButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="1dp"
+                android:layout_marginRight="1dp"
+                android:layout_weight="1"
+                android:background="@drawable/buttonshape"
+                android:elevation="0dp"
+                android:onClick="onClickAdd"
+                android:text="@string/add_text" />
+        </TableRow>
+
+    </TableLayout>
+</LinearLayout>
