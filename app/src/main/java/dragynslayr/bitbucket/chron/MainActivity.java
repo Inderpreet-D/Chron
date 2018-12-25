@@ -1,15 +1,20 @@
 package dragynslayr.bitbucket.chron;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
@@ -24,7 +29,7 @@ import java.util.Locale;
 
 public class MainActivity extends Activity {
 
-    private final int SELECT_PHONE_NUMBER = 1;
+    private final int SELECT_PHONE_NUMBER = 1, PERM_REQ_ID = 101;
     private Calendar calendar;
     private EditText nameInput, dateInput, phoneInput;
     private ListView list;
@@ -69,6 +74,24 @@ public class MainActivity extends Activity {
         calendar.set(Calendar.MINUTE, 1);
 
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
+
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, PERM_REQ_ID);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode != PERM_REQ_ID) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        } else if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            new AlertDialog.Builder(this)
+                    .setCancelable(false)
+                    .setTitle("SMS Permission not granted")
+                    .setMessage("This app will not text people without being able to send SMS messages")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.ok, null).show();
+        }
     }
 
     @Override
