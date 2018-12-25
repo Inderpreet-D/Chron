@@ -2,7 +2,8 @@ package dragynslayr.bitbucket.chron;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +20,12 @@ public class DateEventAdapter extends ArrayAdapter<DateEvent> {
     DateEventAdapter(Context context, ArrayList<DateEvent> dates) {
         super(context, 0, dates);
         this.dates = dates;
+        sortAndUpdate();
     }
 
+    @NonNull
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, @NonNull ViewGroup parent) {
         DateEvent event = getItem(position);
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.date_event, parent, false);
@@ -32,35 +35,43 @@ public class DateEventAdapter extends ArrayAdapter<DateEvent> {
         TextView dateText = convertView.findViewById(R.id.eventDate);
         TextView phoneText = convertView.findViewById(R.id.eventPhone);
 
-        nameText.setText(event.getName());
-        dateText.setText(event.getDate());
-        phoneText.setText(event.getPhone());
+        if (event != null) {
+            nameText.setText(event.getName());
+            dateText.setText(event.getDate());
+            phoneText.setText(event.getPhone());
+        }
 
-        convertView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                new AlertDialog.Builder(getContext())
-                        .setTitle("Remove")
-                        .setMessage("Do you want to remove " + nameText.getText().toString())
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                removeDate(position);
-                                Toast.makeText(getContext(), "Removed " + nameText.getText().toString(), Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, null).show();
-                return true;
-            }
+        convertView.setOnLongClickListener(v -> {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Remove")
+                    .setMessage("Do you want to delete " + nameText.getText().toString() + "?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                        removeDate(position);
+                        Toast.makeText(getContext(), "Removed " + nameText.getText().toString(), Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton(android.R.string.no, null).show();
+            return true;
         });
 
         return convertView;
     }
 
+    @Override
+    public void add(@Nullable DateEvent object) {
+        super.add(object);
+        sortAndUpdate();
+    }
+
+    private void sortAndUpdate() {
+        DateEventComparator comparator = new DateEventComparator();
+        dates.sort(comparator);
+        notifyDataSetChanged();
+    }
+
     private void removeDate(int position) {
         dates.remove(position);
-        notifyDataSetChanged();
+        sortAndUpdate();
         FileHandler.saveDates(dates, getContext().getApplicationContext());
     }
 }

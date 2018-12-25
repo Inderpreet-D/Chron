@@ -1,5 +1,7 @@
 package dragynslayr.bitbucket.chron;
 
+import android.support.annotation.NonNull;
+
 public class DateEvent {
 
     private final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
@@ -37,8 +39,21 @@ public class DateEvent {
         return month;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return name + " " + month + "/" + day + " " + phone;
+    }
+
+    int compare(DateEvent other) {
+        if (month == other.month) {
+            if (day == other.day) {
+                return phone.compareTo(other.phone);
+            } else {
+                return day - other.day;
+            }
+        } else {
+            return month - other.month;
+        }
     }
 }

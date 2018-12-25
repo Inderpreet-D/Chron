@@ -66,11 +66,9 @@ public class MainActivity extends Activity {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 15);
-        //calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE));
+        calendar.set(Calendar.MINUTE, 1);
 
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
-        //alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES / 15, alarmIntent);
     }
 
     @Override
@@ -80,20 +78,25 @@ public class MainActivity extends Activity {
         if (requestCode == SELECT_PHONE_NUMBER && resultCode == RESULT_OK) {
             Uri contactUri = data.getData();
             String[] projection = new String[]{ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER};
-            Cursor cursor = getContentResolver().query(contactUri, projection, null, null, null);
 
-            if (cursor != null && cursor.moveToFirst()) {
-                int numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER);
-                int nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+            if (contactUri != null) {
+                Cursor cursor = getContentResolver().query(contactUri, projection, null, null, null);
 
-                String name = cursor.getString(nameIndex).split(" ")[0];
-                String number = cursor.getString(numberIndex).substring(2);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        int numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER);
+                        int nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
 
-                nameInput.setText(name);
-                phoneInput.setText(number);
+                        String name = cursor.getString(nameIndex).split(" ")[0];
+                        String number = cursor.getString(numberIndex).substring(2);
+
+                        nameInput.setText(name);
+                        phoneInput.setText(number);
+                    }
+
+                    cursor.close();
+                }
             }
-
-            cursor.close();
         }
     }
 
@@ -108,7 +111,12 @@ public class MainActivity extends Activity {
         dateInput.clearFocus();
 
         InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        if (inputManager != null) {
+            View focus = getCurrentFocus();
+            if (focus != null) {
+                inputManager.hideSoftInputFromWindow(focus.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        }
 
         String name = nameInput.getText().toString();
         String phone = phoneInput.getText().toString();
