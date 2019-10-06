@@ -95,8 +95,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == SELECT_PHONE_NUMBER && resultCode == RESULT_OK) {
+        if (requestCode == adapter.SELECT_PHONE_NUMBER_2) {
+            adapter.onActivityResult(requestCode, resultCode, data);
+        } else if (requestCode == SELECT_PHONE_NUMBER && resultCode == RESULT_OK) {
             Uri contactUri = data.getData();
             String[] projection = new String[]{ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER};
 
