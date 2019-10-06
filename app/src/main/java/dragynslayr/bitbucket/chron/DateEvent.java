@@ -2,11 +2,13 @@ package dragynslayr.bitbucket.chron;
 
 import android.support.annotation.NonNull;
 
+import java.util.Calendar;
+
 public class DateEvent {
 
-    private final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    private static final String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
     private String name, date, phone;
-    private int day, month;
+    private int day, month, monthOffset;
 
     DateEvent(String name, String phone, String date) {
         this.name = name;
@@ -17,6 +19,12 @@ public class DateEvent {
 
         this.date = months[month - 1] + " " + day;
         this.phone = phone;
+
+        int current = Calendar.getInstance().get(Calendar.MONTH) + 1;
+        monthOffset = month - current;
+        if (month < current) {
+            monthOffset += 12;
+        }
     }
 
     String getName() {
@@ -46,14 +54,14 @@ public class DateEvent {
     }
 
     int compare(DateEvent other) {
-        if (month == other.month) {
+        if (monthOffset == other.monthOffset) {
             if (day == other.day) {
                 return phone.compareTo(other.phone);
             } else {
                 return day - other.day;
             }
         } else {
-            return month - other.month;
+            return monthOffset - other.monthOffset;
         }
     }
 }
