@@ -30,7 +30,7 @@ class FileHandler {
             writer.flush();
             writer.close();
         } catch (Exception e) {
-            Log.e("Chron", "File write failed: " + e.toString());
+            Log.e(MainActivity.APP_NAME, "File write failed: " + e.toString());
         }
     }
 
@@ -51,7 +51,7 @@ class FileHandler {
                 reader.close();
             }
         } catch (Exception e) {
-            Log.e("Chron", "File read failed: " + e.toString());
+            Log.e(MainActivity.APP_NAME, "File read failed: " + e.toString());
         }
         return read;
     }

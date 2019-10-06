@@ -15,7 +15,6 @@ import java.util.Calendar;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
-    public static final String SAVE_FILE_NAME = "dates.txt";
     public static final String CHANNEL_ID = "ChronNotify";
 
     @Override
@@ -23,7 +22,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         Calendar calendar = Calendar.getInstance();
 
         if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
-            Log.d("Chron", "Alarm Triggered");
+            Log.d(MainActivity.APP_NAME, "Alarm Triggered");
             Toast.makeText(context, "Alarm Triggered", Toast.LENGTH_LONG).show();
 
             int month = calendar.get(Calendar.MONTH);
@@ -66,14 +65,11 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     private void sendMessages(final ArrayList<DateEvent> birthdays, final int idx) {
         if (idx < birthdays.size()) {
-            (new Handler()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    DateEvent d = birthdays.get(idx);
-                    SmsManager sms = SmsManager.getDefault();
-                    sms.sendTextMessage(d.getPhone(), null, "Happy Birthday, " + d.getName() + "!", null, null);
-                    sendMessages(birthdays, idx + 1);
-                }
+            (new Handler()).postDelayed(() -> {
+                DateEvent d = birthdays.get(idx);
+                SmsManager sms = SmsManager.getDefault();
+                sms.sendTextMessage(d.getPhone(), null, "Happy Birthday, " + d.getName() + "!", null, null);
+                sendMessages(birthdays, idx + 1);
             }, 5000);
         }
     }

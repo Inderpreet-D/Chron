@@ -29,14 +29,12 @@ import java.util.Locale;
 
 public class MainActivity extends Activity {
 
+    public static final String APP_NAME = "Chron";
     private final int SELECT_PHONE_NUMBER = 1, PERM_REQ_ID = 101;
     private Calendar calendar;
     private EditText nameInput, dateInput, phoneInput;
-    private ListView list;
     private DateEventAdapter adapter;
     private ArrayList<DateEvent> dates;
-    private AlarmManager alarmManager;
-    private PendingIntent alarmIntent;
     private DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -60,13 +58,13 @@ public class MainActivity extends Activity {
         calendar = Calendar.getInstance();
         dates = FileHandler.loadDates(this);
 
-        list = findViewById(R.id.listView);
+        ListView list = findViewById(R.id.listView);
         adapter = new DateEventAdapter(this, dates);
         list.setAdapter(adapter);
 
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, AlarmReceiver.class);
-        alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
