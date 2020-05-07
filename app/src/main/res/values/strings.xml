@@ -8,9 +8,11 @@
     <string name="name_digits">abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
     <string name="phone_digits">0123456789</string>
     <string name="send_text">Send</string>
-    <string name="edit_text">Edit</string>
+    <string name="edit_text">Save</string>
     <string name="cancel_text">Cancel</string>
     <string name="edit_title">Edit Information</string>
     <string name="remove_title">Remove Person?</string>
     <string name="ok_text">Yes</string>
+    <string name="channel_name">Chron Notifications</string>
+    <string name="channel_description">Birthday Notifications from Chron</string>
 </resources>

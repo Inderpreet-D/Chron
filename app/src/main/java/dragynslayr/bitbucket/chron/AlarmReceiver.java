@@ -15,15 +15,13 @@ import java.util.Calendar;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
-    public static final String CHANNEL_ID = "ChronNotify";
-
     @Override
     public void onReceive(Context context, Intent intent) {
         Calendar calendar = Calendar.getInstance();
 
-        if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
+        if (calendar.get(Calendar.HOUR_OF_DAY) == 0 && calendar.get(Calendar.MINUTE) <= 3) {
             Log.d(MainActivity.APP_NAME, "Alarm Triggered");
-            Toast.makeText(context, "Alarm Triggered", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Chron Alarm Triggered", Toast.LENGTH_LONG).show();
 
             int month = calendar.get(Calendar.MONTH);
             int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -51,7 +49,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     private void makeNotification(Context context, String title, String msg, int id) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_chron_notif)
                 .setContentTitle(title)
                 .setContentText(msg)
