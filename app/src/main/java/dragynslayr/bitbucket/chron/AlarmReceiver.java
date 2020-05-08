@@ -19,7 +19,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Calendar calendar = Calendar.getInstance();
 
-        if (calendar.get(Calendar.HOUR_OF_DAY) == 0 && calendar.get(Calendar.MINUTE) <= 3) {
+        if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
             Log.d(MainActivity.APP_NAME, "Alarm Triggered");
             Toast.makeText(context, "Chron Alarm Triggered", Toast.LENGTH_LONG).show();
 
