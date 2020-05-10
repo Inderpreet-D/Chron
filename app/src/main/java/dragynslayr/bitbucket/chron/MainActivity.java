@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
@@ -68,20 +69,35 @@ public class MainActivity extends Activity {
         adapter = new DateEventAdapter(this, dates);
         list.setAdapter(adapter);
 
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 1);
-
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
+        MainActivity.scheduleAlarm(this);
 
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, PERM_REQ_ID);
         }
+    }
+
+    public static void scheduleAlarm(Context currentContext) {
+        Intent intent = new Intent(currentContext, AlarmReceiver.class);
+        PendingIntent oldAlarm = PendingIntent.getBroadcast(currentContext, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_NO_CREATE);
+        if (oldAlarm != null) {
+            Log.d(MainActivity.APP_NAME, "Old alarm found, exiting scheduling.");
+            return;
+        }
+
+        long currentTimeMillis = System.currentTimeMillis();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(currentTimeMillis);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 1);
+        calendar.setTimeInMillis(calendar.getTimeInMillis() + AlarmManager.INTERVAL_DAY);
+
+        PendingIntent pIntent = PendingIntent.getBroadcast(currentContext, AlarmReceiver.REQUEST_CODE,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarm = (AlarmManager) currentContext.getSystemService(Context.ALARM_SERVICE);
+        alarm.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+
+        Log.d(MainActivity.APP_NAME, "Next alarm at: " + calendar.getTime().toString());
     }
 
     @Override

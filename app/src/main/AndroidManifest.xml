@@ -22,8 +22,6 @@
         </activity>
         <receiver
             android:name=".AlarmReceiver"
-            android:exported="true"
-            android:permission="" />
+            android:process=":remote" />
     </application>
-
 </manifest>

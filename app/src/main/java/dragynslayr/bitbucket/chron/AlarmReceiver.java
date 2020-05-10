@@ -15,37 +15,38 @@ import java.util.Calendar;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
+    public static final int REQUEST_CODE = 12345;
+
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.d(MainActivity.APP_NAME, "Alarm Triggered");
+        Toast.makeText(context, "Chron Alarm Triggered", Toast.LENGTH_LONG).show();
+
         Calendar calendar = Calendar.getInstance();
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        StringBuilder msg = new StringBuilder();
 
-        if (calendar.get(Calendar.HOUR_OF_DAY) == 0) {
-            Log.d(MainActivity.APP_NAME, "Alarm Triggered");
-            Toast.makeText(context, "Chron Alarm Triggered", Toast.LENGTH_LONG).show();
+        ArrayList<DateEvent> dates = FileHandler.loadDates(context);
+        ArrayList<DateEvent> birthdays = new ArrayList<>();
 
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-            StringBuilder msg = new StringBuilder();
-
-            ArrayList<DateEvent> dates = FileHandler.loadDates(context);
-            ArrayList<DateEvent> birthdays = new ArrayList<>();
-
-            for (DateEvent d : dates) {
-                if ((month + 1) == d.getMonth() && day == d.getDay()) {
-                    birthdays.add(d);
-                    msg.append(d.getName()).append("\n");
-                }
+        for (DateEvent d : dates) {
+            if ((month + 1) == d.getMonth() && day == d.getDay()) {
+                birthdays.add(d);
+                msg.append(d.getName()).append("\n");
             }
-
-            if (msg.length() == 0) {
-                msg = new StringBuilder("None");
-            } else {
-                msg = new StringBuilder(msg.toString().trim());
-            }
-
-            makeNotification(context, "Birthdays " + (month + 1) + "/" + day, msg.toString(), calendar.get(Calendar.YEAR) + (month * 10000) + (day * 1000000));
-            sendMessages(birthdays, 0);
         }
+
+        if (msg.length() == 0) {
+            msg = new StringBuilder("None");
+        } else {
+            msg = new StringBuilder(msg.toString().trim());
+        }
+
+        makeNotification(context, "Birthdays " + (month + 1) + "/" + day, msg.toString(), calendar.get(Calendar.YEAR) + (month * 10000) + (day * 1000000));
+        sendMessages(birthdays, 0);
+
+        MainActivity.scheduleAlarm(context);
     }
 
     private void makeNotification(Context context, String title, String msg, int id) {
