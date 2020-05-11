@@ -1,8 +1,8 @@
 package dragynslayr.bitbucket.chron;
 
-import android.support.annotation.NonNull;
-
 import java.util.Calendar;
+
+import androidx.annotation.NonNull;
 
 public class DateEvent {
 

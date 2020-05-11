@@ -1,11 +1,7 @@
 package dragynslayr.bitbucket.chron;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -13,12 +9,27 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class AlarmReceiver extends BroadcastReceiver {
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
-    public static final int REQUEST_CODE = 12345;
+public class AlarmWorker extends Worker {
 
+    public AlarmWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
+
+    @NonNull
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public Result doWork() {
+        handleAlarm(getApplicationContext());
+
+        return Result.success();
+    }
+
+    private void handleAlarm(Context context) {
         Log.d(MainActivity.APP_NAME, "Alarm Triggered");
         Toast.makeText(context, "Chron Alarm Triggered", Toast.LENGTH_LONG).show();
 
@@ -43,10 +54,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             msg = new StringBuilder(msg.toString().trim());
         }
 
-        makeNotification(context, "Birthdays " + (month + 1) + "/" + day, msg.toString(), calendar.get(Calendar.YEAR) + (month * 10000) + (day * 1000000));
+        makeNotification(context, "WORKER: Birthdays " + (month + 1) + "/" + day, msg.toString(), calendar.get(Calendar.YEAR) + (month * 10000) + (day * 1000000));
         sendMessages(birthdays, 0);
-
-        MainActivity.scheduleAlarm(context);
     }
 
     private void makeNotification(Context context, String title, String msg, int id) {

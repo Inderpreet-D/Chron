@@ -2,12 +2,10 @@ package dragynslayr.bitbucket.chron;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,8 +14,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -30,6 +26,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.work.Constraints;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 public class MainActivity extends Activity {
 
@@ -69,35 +72,35 @@ public class MainActivity extends Activity {
         adapter = new DateEventAdapter(this, dates);
         list.setAdapter(adapter);
 
-        MainActivity.scheduleAlarm(this);
+        scheduleAlarm();
 
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.SEND_SMS}, PERM_REQ_ID);
         }
     }
 
-    public static void scheduleAlarm(Context currentContext) {
-        Intent intent = new Intent(currentContext, AlarmReceiver.class);
-        PendingIntent oldAlarm = PendingIntent.getBroadcast(currentContext, AlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_NO_CREATE);
-        if (oldAlarm != null) {
-            Log.d(MainActivity.APP_NAME, "Old alarm found, exiting scheduling.");
-            return;
-        }
+    private void scheduleAlarm() {
+        WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag(APP_NAME);
+
+        Constraints constraints = new Constraints.Builder().build();
 
         long currentTimeMillis = System.currentTimeMillis();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(currentTimeMillis);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 1);
-        calendar.setTimeInMillis(calendar.getTimeInMillis() + AlarmManager.INTERVAL_DAY);
+        Calendar now = Calendar.getInstance();
+        now.setTimeInMillis(currentTimeMillis);
+        Calendar later = Calendar.getInstance();
+        later.setTimeInMillis(currentTimeMillis);
+        later.set(Calendar.HOUR_OF_DAY, 0);
+        later.set(Calendar.MINUTE, 1);
+        later.set(Calendar.SECOND, 0);
+        later.set(Calendar.MILLISECOND, 0);
+        later.add(Calendar.HOUR_OF_DAY, 24);
 
-        PendingIntent pIntent = PendingIntent.getBroadcast(currentContext, AlarmReceiver.REQUEST_CODE,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        long initialDelay = Math.abs(later.getTimeInMillis() - now.getTimeInMillis());
+        PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(AlarmWorker.class, 1, TimeUnit.DAYS, 2, TimeUnit.MINUTES).setInitialDelay(initialDelay, TimeUnit.MILLISECONDS).setConstraints(constraints).addTag(APP_NAME).build();
 
-        AlarmManager alarm = (AlarmManager) currentContext.getSystemService(Context.ALARM_SERVICE);
-        alarm.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+        WorkManager.getInstance(getApplicationContext()).enqueue(request);
 
-        Log.d(MainActivity.APP_NAME, "Next alarm at: " + calendar.getTime().toString());
+        Log.d(APP_NAME, "Work scheduled for " + (initialDelay / (1000.0 * 3600.0)) + " hours from now");
     }
 
     @Override
