@@ -2,10 +2,12 @@ package dragynslayr.bitbucket.chron;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -26,13 +28,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.work.Constraints;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 public class MainActivity extends Activity {
 
@@ -80,27 +78,21 @@ public class MainActivity extends Activity {
     }
 
     private void scheduleAlarm() {
-        WorkManager.getInstance(getApplicationContext()).cancelAllWorkByTag(APP_NAME);
-
-        Constraints constraints = new Constraints.Builder().build();
-
         long currentTimeMillis = System.currentTimeMillis();
-        Calendar now = Calendar.getInstance();
-        now.setTimeInMillis(currentTimeMillis);
-        Calendar later = Calendar.getInstance();
-        later.setTimeInMillis(currentTimeMillis);
-        later.set(Calendar.HOUR_OF_DAY, 0);
-        later.set(Calendar.MINUTE, 1);
-        later.set(Calendar.SECOND, 0);
-        later.set(Calendar.MILLISECOND, 0);
-        later.add(Calendar.HOUR_OF_DAY, 24);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(currentTimeMillis);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 1);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
 
-        long initialDelay = Math.abs(later.getTimeInMillis() - now.getTimeInMillis());
-        PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(AlarmWorker.class, 1, TimeUnit.DAYS, 2, TimeUnit.MINUTES).setInitialDelay(initialDelay, TimeUnit.MILLISECONDS).setConstraints(constraints).addTag(APP_NAME).build();
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
 
-        WorkManager.getInstance(getApplicationContext()).enqueue(request);
+        alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
 
-        Log.d(APP_NAME, "Work scheduled for " + (initialDelay / (1000.0 * 3600.0)) + " hours from now");
+        Log.d(APP_NAME, "Alarm Scheduled");
     }
 
     @Override
